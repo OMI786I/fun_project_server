@@ -33,6 +33,19 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/score", async (req, res) => {
+      const filter = req.query;
+      const query = {};
+      const options = {
+        sort: {
+          score: filter.sort === "asc" ? 1 : -1,
+        },
+      };
+      const cursor = scoreCollection.find(query, options);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
