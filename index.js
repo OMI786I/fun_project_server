@@ -35,17 +35,39 @@ async function run() {
 
     app.get("/score", async (req, res) => {
       const filter = req.query;
+
+      // Get pagination parameters
+      const dataPerPage = parseInt(filter.dataPerPage) || 10; // Default to 10 per page if not provided
+      const currentPage = parseInt(filter.currentPage) || 1; // Default to page 1 if not provided
+
+      // Define the search query
       const query = {
-        name: { $regex: filter.search, $options: "i" },
+        name: { $regex: filter.search || "", $options: "i" }, // Empty string if no search term is provided
       };
+
+      // Sorting option
       const options = {
         sort: {
-          score: filter.sort === "asc" ? 1 : -1,
+          score: filter.sort === "asc" ? 1 : -1, // Sort by score in ascending or descending order
         },
       };
-      const cursor = scoreCollection.find(query, options);
-      const result = await cursor.toArray();
-      res.send(result);
+
+      // Get the total count of documents that match the query
+      const totalData = await scoreCollection.countDocuments(query);
+
+      // Pagination calculation
+      const totalPages = Math.ceil(totalData / dataPerPage);
+      const skip = (currentPage - 1) * dataPerPage;
+
+      // Fetch paginated data
+      const result = await scoreCollection
+        .find(query, options)
+        .skip(skip)
+        .limit(dataPerPage)
+        .toArray();
+
+      // Send the result to the front-end
+      res.send({ totalPages, currentPage, dataPerPage, result });
     });
 
     // Connect the client to the server	(optional starting in v4.7)
