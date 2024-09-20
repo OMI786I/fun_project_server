@@ -35,7 +35,9 @@ async function run() {
 
     app.get("/score", async (req, res) => {
       const filter = req.query;
-      const query = {};
+      const query = {
+        name: { $regex: filter.search, $options: "i" },
+      };
       const options = {
         sort: {
           score: filter.sort === "asc" ? 1 : -1,
