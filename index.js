@@ -24,12 +24,18 @@ async function run() {
     //for adding on mongodb
 
     const scoreCollection = client.db("funDB").collection("score");
-
+    const feedBackCollection = client.db("feedbackDB").collection("feedback");
     //sending on server
     app.post("/score", async (req, res) => {
       const newScore = req.body;
       console.log(newScore);
       const result = await scoreCollection.insertOne(newScore);
+      res.send(result);
+    });
+    app.post("/feedback", async (req, res) => {
+      const newFeedBack = req.body;
+      console.log(newFeedBack);
+      const result = await feedBackCollection.insertOne(newFeedBack);
       res.send(result);
     });
 
